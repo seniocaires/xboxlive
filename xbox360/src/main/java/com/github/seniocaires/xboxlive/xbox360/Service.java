@@ -7,12 +7,13 @@ import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
 
 import com.github.seniocaires.xboxlive.xbox360.entidade.PaginaListagem;
+import com.github.seniocaires.xboxlive.xbox360.entidade.PaginaProduto;
 import com.mongodb.MongoClient;
 
 public class Service {
 
 	private static Service instancia;
-	private static final String LINK_PAGINA_LISTA_PRODUTOS = "http://marketplace.xbox.com/pt-BR/Games?pagesize=30&sortby=ReleaseDate&Page=";
+	public static final String LINK_PAGINA_LISTA_PRODUTOS = "http://marketplace.xbox.com/pt-BR/Games?pagesize=30&sortby=ReleaseDate&Page=";
 
 	private MongoClient client;
 	private Datastore datastore;
@@ -53,6 +54,33 @@ public class Service {
 		}
 
 		return ultimaPaginaListagemAcessada.get(0);
+	}
+
+	public PaginaProduto buscarPorLink(String link) {
+
+		final Morphia morphia = new Morphia();
+		morphia.mapPackage("com.github.seniocaires.entidade");
+		final Datastore datastore = morphia.createDatastore(getClient(), "xbox360");
+		datastore.ensureIndexes();
+
+		final Query<PaginaProduto> query = getDatastore().createQuery(PaginaProduto.class).filter("link =", link);
+		final List<PaginaProduto> paginasProduto = query.asList();
+
+		if (paginasProduto.isEmpty()) {
+			return null;
+		} else {
+			return paginasProduto.get(0);
+		}
+	}
+
+	public void salvarPaginaProduto(PaginaProduto paginaProduto) {
+
+		final Morphia morphia = new Morphia();
+		morphia.mapPackage("com.github.seniocaires.entidade");
+		final Datastore datastore = morphia.createDatastore(getClient(), "xbox360");
+		datastore.ensureIndexes();
+
+		datastore.save(paginaProduto);
 	}
 
 	private Datastore getDatastore() {
