@@ -1,0 +1,11 @@
+version: '3'
+services:
+  xbox360:
+    build:
+      context: ./xbox360
+    restart: always
+  mongo:
+    image: mongo:3.6.2
+    restart: always
+    volumes:
+      - ./data/mongo:/data/db
